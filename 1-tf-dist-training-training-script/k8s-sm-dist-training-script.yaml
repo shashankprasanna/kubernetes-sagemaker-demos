@@ -33,7 +33,7 @@ spec:
     algorithmSpecification:
         trainingImage: 763104351884.dkr.ecr.us-west-2.amazonaws.com/tensorflow-training:1.15.2-gpu-py27-cu100-ubuntu18.04
         trainingInputMode: File
-        metricdefinitions: 
+        metricDefinitions: 
          - name: val_acc
          - regex: 'val_acc: ([0-9\\.]+)'
     roleArn: arn:aws:iam::453691756499:role/service-role/AmazonSageMaker-ExecutionRole-20190820T113591
