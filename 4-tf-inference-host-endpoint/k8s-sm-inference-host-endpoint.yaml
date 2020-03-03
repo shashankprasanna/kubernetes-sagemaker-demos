@@ -17,3 +17,5 @@ spec:
               - containerHostname: tensorflow
                 modelDataUrl: s3://sagemaker-jobs/trained-tf-model/model.tar.gz
                 image: 763104351884.dkr.ecr.us-west-2.amazonaws.com/tensorflow-inference:1.15.2-cpu-py36-ubuntu18.04
+
+
