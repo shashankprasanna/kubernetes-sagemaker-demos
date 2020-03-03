@@ -1,0 +1,19 @@
+apiVersion: sagemaker.aws.amazon.com/v1
+kind: HostingDeployment
+metadata:
+  name: k8s-sm-inference-host-endpoint 
+spec:
+    region: us-west-2
+    productionVariants:
+        - variantName: AllTraffic
+          modelName: tf-cifar10-resnet-model
+          initialInstanceCount: 1
+          instanceType: ml.c5.large
+          initialVariantWeight: 1
+    models:
+        - name: tf-cifar10-resnet-model
+          executionRoleArn: arn:aws:iam::453691756499:role/service-role/AmazonSageMaker-ExecutionRole-20190820T113591 
+          containers:
+              - containerHostname: tensorflow
+                modelDataUrl: s3://sagemaker-jobs/trained-tf-model/model.tar.gz
+                image: 763104351884.dkr.ecr.us-west-2.amazonaws.com/tensorflow-inference:1.15.2-cpu-py36-ubuntu18.04

@@ -1,0 +1,67 @@
+apiVersion: sagemaker.aws.amazon.com/v1
+kind: TrainingJob
+metadata:
+  name: k8s-sm-dist-custom-container 
+spec:
+    hyperParameters:
+        - name: learning-rate
+          value: "0.001"
+        - name: weight-decay
+          value: "0.0002"
+        - name: batch-size
+          value: "256"
+        - name: momentum
+          value: "0.9"
+        - name: optimizer
+          value: "adam"
+        - name: epochs
+          value: "20"
+        - name: sagemaker_mpi_custom_mpi_options
+          value: "-verbose --NCCL_DEBUG=INFO -x OMPI_MCA_btl_vader_single_copy_mechanism=none"
+        - name: sagemaker_mpi_enabled
+          value: "true"
+        - name: sagemaker_mpi_num_of_processes_per_host
+          value: "1"
+        - name: tensorboard_logs
+          value: "s3://sagemaker-jobs/tensorboard_logs/k8s-sm-container-2x1-workers"
+    algorithmSpecification:
+        trainingImage: 453691756499.dkr.ecr.us-west-2.amazonaws.com/sagemaker-kubernetes:latest
+        trainingInputMode: File
+        metricDefinitions: 
+         - name: val_acc
+         - regex: 'val_acc: ([0-9\\.]+)'
+    roleArn: arn:aws:iam::453691756499:role/service-role/AmazonSageMaker-ExecutionRole-20190820T113591
+    region: us-west-2
+    outputDataConfig:
+        s3OutputPath: s3://sagemaker-jobs/jobs/
+    resourceConfig:
+        instanceCount: 2
+        instanceType: "ml.p3.2xlarge"
+        volumeSizeInGB: 5
+    stoppingCondition:
+        maxRuntimeInSeconds: 86400
+    inputDataConfig:
+        - channelName: train
+          dataSource:
+            s3DataSource:
+                s3DataType: S3Prefix
+                s3Uri: s3://sagemaker-jobs/cifar10-dataset/train
+                s3DataDistributionType: FullyReplicated
+          compressionType: None
+        - channelName: validation
+          dataSource:
+            s3DataSource:
+                s3DataType: S3Prefix
+                s3Uri: s3://sagemaker-jobs/cifar10-dataset/validation
+                s3DataDistributionType: FullyReplicated
+          compressionType: None
+        - channelName: eval
+          dataSource:
+            s3DataSource:
+                s3DataType: S3Prefix
+                s3Uri: s3://sagemaker-jobs/cifar10-dataset/eval
+                s3DataDistributionType: FullyReplicated
+          compressionType: None
+    tags:
+      - key: tagKey
+        value: tagValue

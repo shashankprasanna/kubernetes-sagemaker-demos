@@ -1,0 +1,94 @@
+apiVersion: sagemaker.aws.amazon.com/v1
+kind: HyperparameterTuningJob
+metadata:
+    name: k8s-sm-hyperopt-training-script 
+spec:
+    hyperParameterTuningJobConfig:
+        resourceLimits:
+            maxNumberOfTrainingJobs: 8
+            maxParallelTrainingJobs: 2
+        strategy: "Bayesian"
+        trainingJobEarlyStoppingType: Auto
+        hyperParameterTuningJobObjective:
+            type: Maximize
+            metricName: 'val_acc'
+        parameterRanges:
+            continuousParameterRanges:
+            - name: learning-rate
+              minValue: '0.0001'
+              maxValue: '0.1'
+              scalingType: Logarithmic
+            - name: momentum
+              minValue: '0.9'
+              maxValue: '0.99'
+              scalingType: Linear
+            categoricalParameterRanges:
+            - name: optimizer
+              values:
+              - 'sgd'
+              - 'adam'
+            - name: batch-size
+              values:
+              - '32'
+              - '128'
+              - '512'
+              - '1024'
+    trainingJobDefinition:
+        staticHyperParameters:
+            - name: weight-decay
+              value: "0.0002"
+            - name: epochs
+              value: "20"
+            - name: model_dir
+              value: 's3://sagemaker-jobs/jobs'
+            - name: sagemaker_estimator_class_name
+              value: 'TensorFlow'
+            - name: sagemaker_estimator_module
+              value: 'sagemaker.tensorflow.estimator'
+            - name: sagemaker_program
+              value: 'cifar10-training-script-sagemaker.py'
+            - name: sagemaker_submit_directory
+              value: 's3://sagemaker-jobs/training-scripts/sourcedir.tar.gz'
+            - name: sagemaker_region
+              value: 'us-west-2'
+        algorithmSpecification:
+            trainingImage: 763104351884.dkr.ecr.us-west-2.amazonaws.com/tensorflow-training:1.14.0-gpu-py27-cu100-ubuntu16.04
+            trainingInputMode: File
+            metricDefinitions: 
+                - name: 'val_acc'
+                  regex: 'val_acc: ([0-9\\.]+)'
+        roleArn: arn:aws:iam::453691756499:role/service-role/AmazonSageMaker-ExecutionRole-20190820T113591
+        outputDataConfig:
+            s3OutputPath: s3://sagemaker-jobs/jobs/
+        resourceConfig:
+            instanceCount: 1
+            instanceType: "ml.p3.2xlarge"
+            volumeSizeInGB: 5
+        stoppingCondition:
+            maxRuntimeInSeconds: 86400
+        inputDataConfig:
+            - channelName: train
+              dataSource:
+                s3DataSource:
+                    s3DataType: S3Prefix
+                    s3Uri: s3://sagemaker-jobs/cifar10-dataset/train
+                    s3DataDistributionType: FullyReplicated
+              compressionType: None
+            - channelName: validation
+              dataSource:
+                s3DataSource:
+                    s3DataType: S3Prefix
+                    s3Uri: s3://sagemaker-jobs/cifar10-dataset/validation
+                    s3DataDistributionType: FullyReplicated
+              compressionType: None
+            - channelName: eval
+              dataSource:
+                s3DataSource:
+                    s3DataType: S3Prefix
+                    s3Uri: s3://sagemaker-jobs/cifar10-dataset/eval
+                    s3DataDistributionType: FullyReplicated
+              compressionType: None
+    region: us-west-2      
+    tags:
+      - key: tagKey
+        value: tagValue
