@@ -12,7 +12,7 @@ spec:
           initialVariantWeight: 1
     models:
         - name: tf-cifar10-resnet-model
-          executionRoleArn: arn:aws:iam::453691756499:role/service-role/AmazonSageMaker-ExecutionRole-20190820T113591 
+          executionRoleArn: arn:aws:iam::<ACCOUNT_ID>:role/service-role/AmazonSageMaker-ExecutionRole-20190820T113591 
           containers:
               - containerHostname: tensorflow
                 modelDataUrl: s3://sagemaker-jobs/trained-tf-model/model.tar.gz
