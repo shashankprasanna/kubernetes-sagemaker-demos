@@ -57,7 +57,7 @@ spec:
             metricDefinitions: 
                 - name: 'val_acc'
                   regex: 'val_acc: ([0-9\\.]+)'
-        roleArn: arn:aws:iam::453691756499:role/service-role/AmazonSageMaker-ExecutionRole-20190820T113591
+        roleArn: arn:aws:iam::<ACCOUNT_ID>:role/service-role/AmazonSageMaker-ExecutionRole-20190820T113591
         outputDataConfig:
             s3OutputPath: s3://sagemaker-jobs/jobs/
         resourceConfig:
